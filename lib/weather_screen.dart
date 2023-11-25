@@ -35,7 +35,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
       final data = jsonDecode(res.body);
       if (data['cod'] != '200') {
-        throw 'an unexpected error occurred!';
+        throw 'an unexpected error occurred! \n try refreshing!';
       }
 
       return data;
@@ -55,9 +55,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ),
         centerTitle: true,
         actions: [
+          //refresh button
           IconButton(
-              onPressed: () {
-                setState(() {});
+              onPressed: () async {
+                setState(() {
+                  // Reset cityName to 'Goa' before refresh
+                  cityName = 'Goa';
+                });
+
+                // Perform the refresh action
+                try {
+                  await getCurrentWeather();
+                } catch (e) {
+                  // Handle the error (city not found)
+                  debugPrint(
+                      'Error: City not found. Setting to default city (Goa)');
+                  setState(
+                    () {
+                      cityName = 'Goa';
+                    },
+                  );
+                }
               },
               icon: const Icon(Icons.refresh)),
           // IconButton(onPressed: () {}, icon: const Icon(Icons.dark_mode))
@@ -143,7 +161,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                     style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),
-                                  )
+                                  ),
+                                  const SizedBox(
+                                    height: 16,
+                                  ),
+                                  Text(
+                                    cityName,
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ],
                               ),
                             ),
@@ -267,7 +294,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             });
                           },
                           icon: const Icon(
-                            Icons.location_city,
+                            Icons.arrow_forward_rounded,
                             size: 45,
                           ),
                         ),
