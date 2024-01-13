@@ -204,10 +204,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               tempKelvin - 273.15; // Convert Kelvin to Celsius
                           final temperatureCelsiusString =
                               '${tempCelsius.toStringAsFixed(2)} °C';
-
                           final timeOnly =
                               DateTime.parse(data['list'][i + 1]['dt_txt']);
-
                           //Extracting icon from 'main'
                           final sky = data['list'][i + 1]['weather'][0]['main'];
 
