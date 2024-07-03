@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'weather_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({super.key});
 
   final TextEditingController _controller = TextEditingController();
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/widgets/additiona_info_item.dart';
@@ -19,15 +20,29 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   late TextEditingController textEditingController;
   late String cityName;
+  late bool isConnected; // Track internet connectivity
 
   @override
   void initState() {
     super.initState();
     textEditingController = TextEditingController();
     cityName = widget.cityName;
+    isConnected = true; // Assume initially connected
+    _checkInternetConnection(); // Check connectivity on init
+  }
+
+  Future<void> _checkInternetConnection() async {
+    ConnectivityResult result = await Connectivity().checkConnectivity();
+    setState(() {
+      isConnected = result != ConnectivityResult.none;
+    });
   }
 
   Future<Map<String, dynamic>> getCurrentWeather() async {
+    if (!isConnected) {
+      throw 'No internet connection';
+    }
+
     try {
       final res = await http.get(
         Uri.parse(
@@ -58,13 +73,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
           IconButton(
             onPressed: () {
               _refreshWeather();
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('City not found. Setting default city to Goa'),
-                  duration: Duration(seconds: 5),
-                ),
-              );
             },
             icon: const Icon(Icons.refresh),
           ),
@@ -73,6 +81,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
       body: FutureBuilder<Map<String, dynamic>>(
         future: getCurrentWeather(),
         builder: (context, snapshot) {
+          if (!isConnected) {
+            return Center(
+              child: Text(
+                'Connect to the internet to view weather data.',
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator.adaptive());
           }
@@ -118,6 +135,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final enteredCity = textEditingController.text.trim();
 
     if (enteredCity.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('City not found. Setting default city to Goa'),
+          duration: Duration(seconds: 5),
+        ),
+      );
       setState(() {
         cityName = 'Goa';
       });
@@ -131,6 +154,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
       await getCurrentWeather();
     } catch (e) {
       debugPrint('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('City not found. Setting default city to Goa'),
+          duration: Duration(seconds: 5),
+        ),
+      );
       setState(() {
         cityName = 'Goa';
       });
