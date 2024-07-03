@@ -1,5 +1,5 @@
 # weather_app
 
-This was my first app that included API connectivity. I created it for learning purposes, but it is fully functional. I'm looking forward to learning new things in Flutter.
+This app allows you to type city names and retrieve their weather conditions using the OpenWeatherAPI. I created it for learning purposes, and it is fully functional. I'm eager to continue learning new things in Flutter
 
 
